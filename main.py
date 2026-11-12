@@ -4,7 +4,6 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 from statistics import median
 
-
 månedsdata = {}
 maks_per_måned = {}
 min_per_måned = {}
@@ -69,7 +68,6 @@ for år_måned in månedsdata:
 
     for rad in månedsdata[år_måned]:
 
-
         if rad[4].strip() != "-" and rad[4].strip() != "":
             mid_temp.append(float(rad[4].strip().replace(",", ".")))
 
@@ -86,26 +84,19 @@ for år_måned in månedsdata:
         maks_midvind = max(høy_midvind)
         maks_midvind_måned[år_måned] = maks_midvind
 
-
-
     if len(nedbør) > 20:
         tot_nedbør = sum(nedbør)
         tot_nedbør_måned[år_måned] = tot_nedbør
 
-
-
     if snødybde:
         maks_snødybde = max(snødybde)
         maks_snødybde_måned[år_måned] = maks_snødybde
-
 
     if mid_temp:
         maks_måned = max(mid_temp)
         maks_per_måned[år_måned] = maks_måned
         min_måned = min(mid_temp)
         min_per_måned[år_måned] = min_måned
-
-
 
 
 datoer = []
@@ -137,7 +128,7 @@ min_temp_datoer = []
 
 for år_måned in sorted(min_per_måned):
     min_temp_verdier.append(min_per_måned[år_måned])
-    dato = datetime(år_måned[0], år_måned[1],1)
+    dato = datetime(år_måned[0], år_måned[1], 1)
     min_temp_datoer.append(dato)
 
 maks_midvind_verdier = []
@@ -145,10 +136,10 @@ maks_midvind_datoer = []
 
 for år_måned in sorted(maks_midvind_måned):
     maks_midvind_verdier.append(maks_midvind_måned[år_måned])
-    dato = datetime(år_måned[0], år_måned[1],1)
+    dato = datetime(år_måned[0], år_måned[1], 1)
     maks_midvind_datoer.append(dato)
 
-fig, ax = plt.subplots(5, 1, figsize=(12,10), sharex=True)
+fig, ax = plt.subplots(5, 1, figsize=(12, 10), sharex=True)
 
 ax[0].plot(datoer, snødybder)
 ax[1].plot(nedbør_datoer, nedbør_verdier)
@@ -169,3 +160,50 @@ ax[3].set_title("Min Temperatur")
 ax[4].set_title("Maks Middelvind")
 
 plt.tight_layout()
+
+sommerdager = {}
+høysommerdager = {}
+tropedager = {}
+
+for år_måned in månedsdata:
+
+    år = år_måned[0]
+
+    if år not in sommerdager:
+        sommerdager[år] = 0
+        høysommerdager[år] = 0
+        tropedager[år] = 0
+
+    for rad in månedsdata[år_måned]:
+
+        if rad[3].strip() == "-" or rad[3].strip() == "":
+            continue
+
+        temperatur = float(rad[3].strip().replace(",", "."))
+
+        if temperatur > 20:
+            sommerdager[år] += 1
+
+        if temperatur > 25:
+            høysommerdager[år] += 1
+
+        if temperatur > 30:
+            tropedager[år] += 1
+
+årstall = sorted(sommerdager)
+
+fig2, ax2 = plt.subplots(figsize=(12, 6))
+
+ax2.plot(årstall, [sommerdager[år] for år in årstall], label="Sommerdager")
+
+ax2.plot(årstall, [høysommerdager[år] for år in årstall], label="Høysommerdager")
+
+ax2.plot(årstall, [tropedager[år] for år in årstall], label="Tropedager")
+
+ax2.set_xlabel("År")
+ax2.set_ylabel("Antall dager")
+ax2.set_title("Sommerdager, høysommerdager og tropedager")
+ax2.legend()
+ax2.grid(True)
+
+fig2.tight_layout()
