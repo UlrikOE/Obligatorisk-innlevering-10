@@ -269,8 +269,7 @@ for stasjonsnummer in stasjoner:
         else:
             gjennomsnitt.append(float("nan"))
 
-    ax3.plot(årstall, gjennomsnitt,
-             label=stasjoner[stasjonsnummer])
+    ax3.plot(årstall, gjennomsnitt, label=stasjoner[stasjonsnummer])
 
 
 ax3.set_title("Gjennomsnittlig årstemperatur")
@@ -281,3 +280,49 @@ ax3.grid(True)
 
 fig3.tight_layout()
 
+vind_per_måned = {}
+
+for måned in range(1, 13):
+    vind_per_måned[måned] = []
+
+for år_måned in månedsdata:
+
+    måned = år_måned[1]
+
+    for rad in månedsdata[år_måned]:
+
+        if rad[6].strip() != "-" and rad[6].strip() != "":
+            vind = float(rad[6].strip().replace(",", "."))
+            vind_per_måned[måned].append(vind)
+
+måneder = []
+min_vind = []
+median_vind = []
+maks_vind = []
+
+for måned in sorted(vind_per_måned):
+
+    målinger = vind_per_måned[måned]
+
+    if målinger:
+        måneder.append(måned)
+
+        min_vind.append(min(målinger))
+        median_vind.append(median(målinger))
+        maks_vind.append(max(målinger))
+
+fig4, ax4 = plt.subplots(figsize=(12, 6))
+
+ax4.plot(måneder, min_vind, marker="o", label="Minimum vindstyrke")
+ax4.plot(måneder, median_vind, marker="o", label="Median vindstyrke")
+ax4.plot(måneder, maks_vind, marker="o", label="Maksimum vindstyrke")
+
+ax4.set_xlabel("Måned")
+ax4.set_ylabel("Vindstyrke (m/s)")
+ax4.set_title(f"Vindstatistikk - {stasjoner[stasjon_valg]}")
+
+ax4.set_xticks(range(1, 13))
+ax4.legend()
+ax4.grid(True)
+
+fig4.tight_layout()
