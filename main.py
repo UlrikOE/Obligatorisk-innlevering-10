@@ -207,3 +207,77 @@ ax2.legend()
 ax2.grid(True)
 
 fig2.tight_layout()
+
+temperaturer_per_år = {}
+
+for fil in filer:
+    with open(fil, "r", encoding="utf-8") as fila:
+        leser = csv.reader(fila, delimiter=";")
+        next(leser)
+
+        for rad in leser:
+
+            if len(rad) < 5:
+                continue
+
+            stasjon = rad[1].strip()
+
+            if not stasjon.startswith("SN"):
+                continue
+
+            if rad[2].strip() == "":
+                continue
+
+            if rad[4].strip() == "-" or rad[4].strip() == "":
+                continue
+
+            try:
+                dato = datetime.strptime(rad[2].strip(), "%d.%m.%Y")
+                temperatur = float(rad[4].strip().replace(",", "."))
+            except ValueError:
+                continue
+
+            år = dato.year
+            nøkkel = (stasjon, år)
+
+            if nøkkel not in temperaturer_per_år:
+                temperaturer_per_år[nøkkel] = {}
+
+            temperaturer_per_år[nøkkel][dato.date()] = temperatur
+
+
+fig3, ax3 = plt.subplots(figsize=(12, 6))
+
+alle_år = [år for stasjon, år in temperaturer_per_år]
+årstall = list(range(min(alle_år), max(alle_år) + 1))
+
+for stasjonsnummer in stasjoner:
+
+    if not stasjonsnummer.startswith("SN"):
+        continue
+
+    gjennomsnitt = []
+
+    for år in årstall:
+
+        nøkkel = (stasjonsnummer, år)
+        målinger = temperaturer_per_år.get(nøkkel, {})
+
+        if len(målinger) >= 300:
+            snitt = sum(målinger.values()) / len(målinger)
+            gjennomsnitt.append(snitt)
+        else:
+            gjennomsnitt.append(float("nan"))
+
+    ax3.plot(årstall, gjennomsnitt,
+             label=stasjoner[stasjonsnummer])
+
+
+ax3.set_title("Gjennomsnittlig årstemperatur")
+ax3.set_xlabel("År")
+ax3.set_ylabel("Gjennomsnittstemperatur (°C)")
+ax3.legend()
+ax3.grid(True)
+
+fig3.tight_layout()
+
