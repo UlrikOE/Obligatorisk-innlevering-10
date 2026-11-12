@@ -326,3 +326,96 @@ ax4.legend()
 ax4.grid(True)
 
 fig4.tight_layout()
+
+snø_per_sesong = {}
+
+for fil in filer:
+    with open(fil, "r", encoding="utf-8") as fila:
+        leser = csv.reader(fila, delimiter=";")
+        next(leser)
+
+        for rad in leser:
+
+            if len(rad) < 8:
+                continue
+
+            stasjon = rad[1].strip()
+
+            if not stasjon.startswith("SN"):
+                continue
+
+            if rad[2].strip() in ("", "-"):
+                continue
+
+            if rad[7].strip() in ("", "-"):
+                continue
+
+            try:
+                dato = datetime.strptime(rad[2].strip(), "%d.%m.%Y")
+                snødybde = float(rad[7].strip().replace(",", "."))
+            except ValueError:
+                continue
+
+            if dato.month not in (11, 12, 1, 2, 3, 4):
+                continue
+
+            if dato.month >= 11:
+                sesong = dato.year
+            else:
+                sesong = dato.year - 1
+
+            nøkkel = (stasjon, sesong)
+
+            if nøkkel not in snø_per_sesong:
+                snø_per_sesong[nøkkel] = {}
+
+            snø_per_sesong[nøkkel][dato.date()] = snødybde
+
+alle_sesonger = sorted(
+    {sesong for stasjon, sesong in snø_per_sesong}
+)
+
+fig5, ax5 = plt.subplots(figsize=(12, 6))
+
+for stasjon in stasjoner:
+
+    årstall = []
+    skidager = []
+
+    for sesong in alle_sesonger:
+
+        nøkkel = (stasjon, sesong)
+
+        målinger = snø_per_sesong.get(nøkkel, {})
+
+        start = datetime(sesong, 11, 1)
+        slutt = datetime(sesong + 1, 5, 1)
+
+        antall_dager = (slutt - start).days
+
+        if len(målinger) >= antall_dager / 2:
+
+            antall_skidager = sum(
+                1 for snø in målinger.values() if snø >= 20
+            )
+
+            årstall.append(sesong)
+            skidager.append(antall_skidager)
+
+        else:
+            årstall.append(sesong)
+            skidager.append(float("nan"))
+
+    if any(verdi == verdi for verdi in skidager):
+        ax5.plot(årstall, skidager, label=stasjoner[stasjon])
+
+ax5.set_xlabel("Skisesong (startår)")
+ax5.set_ylabel("Antall dager med skiføre")
+ax5.set_title("Antall skidager per skisesong")
+
+ax5.legend()
+ax5.grid(True)
+
+fig5.tight_layout()
+
+plt.show()
