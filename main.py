@@ -1,6 +1,7 @@
 import csv
 import glob
 from datetime import datetime
+from pathlib import Path
 from matplotlib import pyplot as plt
 from statistics import median
 
@@ -12,7 +13,8 @@ tot_nedbør_måned = {}
 maks_midvind_måned = {}
 stasjoner = {}
 
-filer = glob.glob("Værdata/*.csv")
+DATAMAPPE = Path(__file__).parent / "Værdata"
+filer = glob.glob(str(DATAMAPPE / "*.csv"))
 
 
 for fil in filer:
