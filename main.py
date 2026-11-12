@@ -371,9 +371,7 @@ for fil in filer:
 
             snø_per_sesong[nøkkel][dato.date()] = snødybde
 
-alle_sesonger = sorted(
-    {sesong for stasjon, sesong in snø_per_sesong}
-)
+alle_sesonger = sorted({sesong for stasjon, sesong in snø_per_sesong})
 
 fig5, ax5 = plt.subplots(figsize=(12, 6))
 
@@ -395,9 +393,7 @@ for stasjon in stasjoner:
 
         if len(målinger) >= antall_dager / 2:
 
-            antall_skidager = sum(
-                1 for snø in målinger.values() if snø >= 20
-            )
+            antall_skidager = sum(1 for snø in målinger.values() if snø >= 20)
 
             årstall.append(sesong)
             skidager.append(antall_skidager)
